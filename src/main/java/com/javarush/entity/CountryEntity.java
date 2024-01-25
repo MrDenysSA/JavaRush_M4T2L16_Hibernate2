@@ -1,8 +1,10 @@
 package com.javarush.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -25,36 +27,10 @@ public class CountryEntity {
     @Column(name = "country")
     private String country;
 
-    public String getCountry() {
-        return country;
-    }
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    @Basic
     @Column(name = "last_update")
-    private Timestamp lastUpdate;
+    @UpdateTimestamp
+    private LocalDateTime lastUpdate;
 
-    public Timestamp getLastUpdate() {
-        return lastUpdate;
-    }
 
-    public void setLastUpdate(Timestamp lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CountryEntity that = (CountryEntity) o;
-        return Objects.equals(countryId, that.countryId) && Objects.equals(country, that.country) && Objects.equals(lastUpdate, that.lastUpdate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(countryId, country, lastUpdate);
-    }
 }

@@ -1,72 +1,34 @@
 package com.javarush.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Timestamp;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.Set;
 
+@Data
 @Entity
-@jakarta.persistence.Table(name = "actor", schema = "movie", catalog = "")
+@Table(name = "actor", schema = "movie")
 public class ActorEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @jakarta.persistence.Column(name = "actor_id")
-    private Object actorId;
+    @Column(name = "actor_id")
+    private Short id;
 
-    public Object getActorId() {
-        return actorId;
-    }
-
-    public void setActorId(Object actorId) {
-        this.actorId = actorId;
-    }
-
-    @Basic
     @Column(name = "first_name")
     private String firstName;
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    @Basic
     @Column(name = "last_name")
     private String lastName;
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    @Basic
     @Column(name = "last_update")
-    private Timestamp lastUpdate;
+    @UpdateTimestamp
+    private LocalDateTime lastUpdate;
 
-    public Timestamp getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Timestamp lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ActorEntity that = (ActorEntity) o;
-        return Objects.equals(actorId, that.actorId) && Objects.equals(firstName, that.firstName) && Objects.equals(lastName, that.lastName) && Objects.equals(lastUpdate, that.lastUpdate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(actorId, firstName, lastName, lastUpdate);
-    }
+    @ManyToMany
+    @JoinTable(name = "film_actor",
+            joinColumns = @JoinColumn(name = "actor_id", referencedColumnName = "actor_id"),
+            inverseJoinColumns = @JoinColumn(name = "film_id", referencedColumnName = "film_id"))
+    private Set<FilmEntity> films;
 }
