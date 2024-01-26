@@ -1,72 +1,28 @@
 package com.javarush.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
-import java.util.Objects;
-
+@Data
 @Entity
-@jakarta.persistence.Table(name = "city", schema = "movie", catalog = "")
+@Table(name = "city", schema = "movie")
 public class CityEntity {
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @jakarta.persistence.Column(name = "city_id")
-    private Object cityId;
+    @Column(name = "city_id")
+    private Short id;
 
-    public Object getCityId() {
-        return cityId;
-    }
-
-    public void setCityId(Object cityId) {
-        this.cityId = cityId;
-    }
-
-    @Basic
     @Column(name = "city")
     private String city;
 
-    public String getCity() {
-        return city;
-    }
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    private CountryEntity countryId;
 
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    @Basic
-    @Column(name = "country_id")
-    private Object countryId;
-
-    public Object getCountryId() {
-        return countryId;
-    }
-
-    public void setCountryId(Object countryId) {
-        this.countryId = countryId;
-    }
-
-    @Basic
     @Column(name = "last_update")
+    @UpdateTimestamp
     private Timestamp lastUpdate;
-
-    public Timestamp getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Timestamp lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CityEntity that = (CityEntity) o;
-        return Objects.equals(cityId, that.cityId) && Objects.equals(city, that.city) && Objects.equals(countryId, that.countryId) && Objects.equals(lastUpdate, that.lastUpdate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(cityId, city, countryId, lastUpdate);
-    }
 }

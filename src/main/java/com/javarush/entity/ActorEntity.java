@@ -11,6 +11,7 @@ import java.util.Set;
 @Entity
 @Table(name = "actor", schema = "movie")
 public class ActorEntity {
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "actor_id")
