@@ -1,7 +1,6 @@
 package com.javarush.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,12 +10,15 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @Entity
 @Table(name = "film", schema = "movie")
 public class FilmEntity {
@@ -34,6 +36,7 @@ public class FilmEntity {
     private String description;
 
     @Column(name = "release_year", columnDefinition = "year")
+    @Convert(converter = YearAttributeConverter.class)
     private Year releaseYear;
 
     @ManyToOne
@@ -57,10 +60,11 @@ public class FilmEntity {
     private BigDecimal replacementCost;
 
     @Column(columnDefinition = "enum('G', 'PG', 'PG-13', 'R', 'NC-17')")
+    @Convert(converter = RatingConverter.class)
     private Rating rating;
 
     @Column(name = "special_features", columnDefinition = "set('Trailers', 'Commentaries', 'Deleted Scenes', 'Behind the Scenes') ")
-    private Feature specialFeatures;
+    private String specialFeatures;
 
     @Column(name = "last_update")
     @UpdateTimestamp
@@ -77,4 +81,25 @@ public class FilmEntity {
             joinColumns = @JoinColumn(name = "film_id", referencedColumnName = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "category_id"))
     private Set<CategoryEntity> categories;
+
+    public Set<Feature> getSpecialFeatures() {
+        if(isNull(specialFeatures) || specialFeatures.isEmpty()) {
+            return null;
+        }
+        Set<Feature>  result = new HashSet<>();
+        String[] features = specialFeatures.split(",");
+        for (String feature : features) {
+            result.add(Feature.getFeatures(feature));
+        }
+        result.remove(null);
+        return result;
+    }
+
+    public void setSpecialFeatures(Set<Feature> features) {
+        if (isNull(features)) {
+            specialFeatures = null;
+        } else {
+            specialFeatures = features.stream().map(Feature::getValue).collect(Collectors.joining(","));
+        }
+    }
 }

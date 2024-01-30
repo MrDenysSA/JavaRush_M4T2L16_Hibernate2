@@ -16,8 +16,8 @@ public class FilmTextEntity {
 
     @Id
     @Column(name = "film_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Short id;
+
 
     @OneToOne
     @JoinColumn(name = "film_id")

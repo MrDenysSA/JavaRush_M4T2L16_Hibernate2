@@ -7,7 +7,13 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 public class Main {
     private final SessionFactory sessionFactory;
@@ -74,13 +80,96 @@ public class Main {
     public static void main(String[] args) {
         Main main = new Main();
         CustomerEntity customer = main.createCustomer();
+        main.customerReturnInventoryToStore();
+        main.customerRentInventory(customer);
+        main.newFilmWasMade();
 
     }
 
-    private CustomerEntity createCustomer() {
-        try (Session sessions = sessionFactory.getCurrentSession()){
+    private void newFilmWasMade() {
+        try (Session sessions = sessionFactory.getCurrentSession()) {
             sessions.beginTransaction();
-            StoreEntity store = storeDAO.getItems(0,1).get(0);
+
+            LanguageEntity language = languageDAO.getItems(0,20).stream().unordered().findAny().get();
+            List<CategoryEntity> categories = categoryDAO.getItems(0,5);
+            List<ActorEntity> actors = actorDAO.getItems(0,20);
+
+            FilmEntity film = new FilmEntity();
+            film.setActors(new HashSet<>(actors));
+            film.setRating(Rating.NC17);
+            film.setSpecialFeatures(Set.of(Feature.TRAILERS, Feature.COMMENTARIES));
+            film.setLength((short) 123);
+            film.setReplacementCost(BigDecimal.TEN);
+            film.setRentalRate(BigDecimal.ZERO);
+            film.setLanguageId(language);
+            film.setDescription("new scary film");
+            film.setTitle("scary my-movie");
+            film.setRentalDuration((byte) 44);
+            film.setOriginalLanguageId(language);
+            film.setCategories(new HashSet<>(categories));
+            film.setReleaseYear(Year.now());
+            filmDAO.save(film);
+
+            FilmTextEntity filmText = new FilmTextEntity();
+            filmText.setFilm(film);
+            filmText.setId(film.getId());
+            filmText.setDescription("new scary film");
+            filmText.setTitle("scary my-movie");
+            filmTextDAO.save(filmText);
+
+            sessions.getTransaction().commit();
+        }
+    }
+
+    private void customerRentInventory(CustomerEntity customer) {
+        try (Session sessions = sessionFactory.getCurrentSession()) {
+            sessions.beginTransaction();
+
+            FilmEntity film = filmDAO.getFirstAvailableFilmForRent();
+            StoreEntity store = storeDAO.getItems(0, 1).get(0);
+            InventoryEntity inventory = new InventoryEntity();
+            inventory.setFilm(film);
+            inventory.setStore(store);
+            inventoryDAO.save(inventory);
+
+            StaffEntity staff = store.getStaff();
+
+            RentalEntity rental = new RentalEntity();
+            rental.setRentalDate(LocalDateTime.now());
+            rental.setCustomer(customer);
+            rental.setInventory(inventory);
+            rental.setStaff(staff);
+            rentalDAO.save(rental);
+
+            PaymentEntity payment = new PaymentEntity();
+            payment.setRental(rental);
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setCustomer(customer);
+            payment.setAmount(BigDecimal.valueOf(55.77));
+            payment.setStaff(staff);
+            paymentDAO.save(payment);
+
+            sessions.getTransaction().commit();
+        }
+    }
+
+    private void customerReturnInventoryToStore() {
+        try (Session sessions = sessionFactory.getCurrentSession()) {
+            sessions.beginTransaction();
+
+            RentalEntity rental = rentalDAO.getAnyUnreturnedRental();
+            rental.setReturnDate(LocalDateTime.now());
+
+            rentalDAO.save(rental);
+
+            sessions.getTransaction().commit();
+        }
+    }
+
+    private CustomerEntity createCustomer() {
+        try (Session sessions = sessionFactory.getCurrentSession()) {
+            sessions.beginTransaction();
+            StoreEntity store = storeDAO.getItems(0, 1).get(0);
 
             CityEntity city = cityDAO.getByName("Kragujevac");
 
