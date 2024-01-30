@@ -2,6 +2,9 @@ package com.javarush.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -11,7 +14,9 @@ import java.time.Year;
 import java.util.Set;
 
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Entity
 @Table(name = "film", schema = "movie")
 public class FilmEntity {

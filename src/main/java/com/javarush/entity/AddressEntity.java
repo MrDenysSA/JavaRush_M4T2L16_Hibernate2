@@ -2,11 +2,16 @@ package com.javarush.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Entity
 @Table(name = "address", schema = "movie")
 public class AddressEntity {
@@ -27,7 +32,6 @@ public class AddressEntity {
 
     @ManyToOne
     @JoinColumn(name = "city_id")
-    @Column(name = "city_id")
     private CityEntity cityId;
 
     @Column(name = "postal_code")
